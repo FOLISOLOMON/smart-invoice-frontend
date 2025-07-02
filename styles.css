@@ -1,0 +1,475 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+}
+
+a{
+    text-decoration: none;
+}
+
+.registration-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.registration-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #343a40;
+    font-weight: 600;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    padding: 10px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+#loginLink {
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.password-strength {
+    height: 5px;
+    background-color: #e9ecef;
+    margin-top: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+
+
+/* Login specific styles */
+.login-container {
+    width: 100%;
+    max-width: 450px;
+}
+
+.login-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+#forgotPassword {
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+/* Modal styles */
+.modal-header.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Invoice specific styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+main {
+    padding-top: 1.5rem;
+}
+
+.table-responsive {
+    margin-bottom: 2rem;
+}
+
+.item-row {
+    align-items: center;
+}
+
+.remove-item {
+    width: 100%;
+}
+
+/* Invoice print styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #invoiceDetails, #invoiceDetails * {
+        visibility: visible;
+    }
+    #invoiceDetails {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .modal-footer {
+        display: none;
+    }
+}
+
+/* Status badges */
+.badge-paid {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-pending {
+    background-color: #ffc107;
+    color: black;
+}
+
+.badge-overdue {
+    background-color: #dc3545;
+    color: white;
+}
+/* Logout button styles */
+.nav-item.mt-auto {
+    margin-top: auto !important;
+}
+
+.nav-link.text-danger {
+    color: #dc3545 !important;
+}
+
+.nav-link.text-danger:hover {
+    color: #fff !important;
+    background-color: #dc3545;
+}
+
+/* User profile section (optional) */
+.user-profile {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+}
+
+.user-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-profile .user-info {
+    flex-grow: 1;
+}
+
+.user-profile .user-info small {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+/* Dashboard specific styles */
+.table-dark {
+    background-color: #343a40;
+    color: white;
+}
+
+.table-dark th {
+    border-bottom: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Status badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.75em;
+    letter-spacing: 0.5px;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Action buttons */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    margin: 0 2px;
+}
+
+/* Pagination */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.page-link {
+    color: #0d6efd;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .table-responsive {
+        border: none;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+    
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .table td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    
+    .table td:last-child {
+        border-bottom: none;
+    }
+    
+    .table td .btn {
+        margin: 0.25rem;
+    }
+}
+
+/* Sidebar Toggle Styles */
+.navbar-toggler {
+    background: rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 1050;
+    padding: 0.5rem;
+}
+
+.navbar-toggler i {
+    color: #fff;
+}
+
+/* Sidebar Responsive Behavior */
+#sidebar {
+    transition: transform 0.3s ease;
+    z-index: 1040;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 767.98px) {
+    #sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        top: 0;
+        bottom: 0;
+        width: 250px;
+    }
+    
+    #sidebar.show {
+        transform: translateX(0);
+    }
+    
+    main {
+        margin-left: 0 !important;
+    }
+}
+
+/* Invoice Items Table in Modal */
+#invoiceDetails .table-responsive {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Highlight amounts in invoice details */
+#invoiceDetails tfoot tr:last-child td {
+    font-weight: bold;
+    font-size: 1.1em;
+    background-color: #f8f9fa;
+}
+
+/* Mobile table styles */
+@media (max-width: 768px) {
+    .table-responsive {
+        border: 0;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+    
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: none;
+        border-bottom: 1px solid #dee2e6;
+        position: relative;
+        padding-left: 50%;
+    }
+    
+    .table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        width: 45%;
+        padding-right: 1rem;
+        font-weight: bold;
+        text-align: left;
+    }
+    
+    .table td:last-child {
+        border-bottom: none;
+    }
+    
+    .table td .btn {
+        margin: 0.25rem;
+    }
+    
+    /* Set data-labels for mobile view */
+    .table td[data-label]::before {
+        content: attr(data-label);
+    }
+}
+
+/* Sidebar Toggle Styles */
+.navbar-toggler {
+    background: rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 1050;
+    padding: 0.5rem;
+    position: fixed;
+    left: 10px;
+    top: 10px;
+}
+
+.navbar-toggler i {
+    color: #000000;
+    font-size: 1.5rem;
+}
+
+/* Sidebar Toggle Styles */
+#sidebar {
+    transition: transform 0.3s ease;
+    z-index: 1040;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Mobile sidebar behavior */
+@media (max-width: 767.98px) {
+    #sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        top: 0;
+        bottom: 0;
+        width: 250px;
+    }
+    
+    #sidebar.show {
+        transform: translateX(0);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    }
+    
+    /* Overlay when sidebar is open */
+    body.sidebar-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1039;
+    }
+}
+
+/* Close button in sidebar */
+#closeSidebar {
+    filter: invert(1);
+    opacity: 0.8;
+    margin-left: auto;
+}
