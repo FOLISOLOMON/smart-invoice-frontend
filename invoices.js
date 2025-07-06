@@ -1,288 +1,316 @@
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
-    const invoiceForm = document.getElementById('invoiceForm');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const logoutButton = document.getElementById('logoutButton');
     const invoiceList = document.getElementById('invoiceList');
+    const createInvoiceModal = document.getElementById('createInvoiceModal');
+    const viewInvoiceModal = document.getElementById('viewInvoiceModal');
+    const invoiceForm = document.getElementById('invoiceForm');
     const addItemBtn = document.getElementById('addItem');
     const invoiceItems = document.getElementById('invoiceItems');
     const saveInvoiceBtn = document.getElementById('saveInvoice');
-    const viewInvoiceModal = new bootstrap.Modal(document.getElementById('viewInvoiceModal'));
-
-     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const closeSidebar = document.getElementById('closeSidebar');
+    const printInvoiceBtn = document.getElementById('printInvoice');
+    const pagination = document.querySelector('.pagination');
     
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('show');
-        });
-    }
+    // State variables
+    let currentPage = 1;
+    const invoicesPerPage = 10;
+    let invoices = [];
+    const token = localStorage.getItem('authToken');
+    const API_BASE_URL = 'https://smart-invoice-backend-ukob.onrender.com/api';
     
-    if (closeSidebar) {
-        closeSidebar.addEventListener('click', function() {
-            sidebar.classList.remove('show');
-        });
-    }
-
+    // Initialize the application
+    init();
     
-    // Check authentication
-    checkAuthentication();
-
-    function checkAuthentication() {
-        if (!localStorage.getItem('authToken')) {
+    function init() {
+        // Check authentication
+        if (!token) {
             window.location.href = 'login.html';
-        }
-    }
-
-    // Current date for default values
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('invoiceDate').value = today;
-    
-    // Set due date to 30 days from now by default
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 30);
-    document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
-    
-    // Generate a random invoice number if field is empty
-    document.getElementById('invoiceNumber').addEventListener('focus', function() {
-        if (!this.value) {
-            this.value = 'INV-' + Math.floor(1000 + Math.random() * 9000);
-        }
-    });
-    
-    // Add item row
-    addItemBtn.addEventListener('click', function() {
-        const itemRow = document.createElement('div');
-        itemRow.className = 'item-row row mb-3';
-        itemRow.innerHTML = `
-            <div class="col-md-6">
-                <input type="text" class="form-control" placeholder="Description" required>
-            </div>
-            <div class="col-md-2">
-                <input type="number" class="form-control quantity" placeholder="Qty" min="1" value="1" required>
-            </div>
-            <div class="col-md-2">
-                <input type="number" class="form-control price" placeholder="Price" min="0" step="0.01" required>
-            </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-danger btn-sm remove-item">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        `;
-        invoiceItems.appendChild(itemRow);
-        
-        // Add event listener to the new remove button
-        itemRow.querySelector('.remove-item').addEventListener('click', function() {
-            if (invoiceItems.children.length > 1) {
-                itemRow.remove();
-                calculateTotals();
-            } else {
-                showAlert('danger', 'You must have at least one item on the invoice.');
-            }
-        });
-        
-        // Add event listeners for quantity/price changes
-        itemRow.querySelector('.quantity').addEventListener('input', calculateTotals);
-        itemRow.querySelector('.price').addEventListener('input', calculateTotals);
-    });
-    
-    // Remove item row (for the initial row)
-    const initialRemoveBtn = document.querySelector('.remove-item');
-    if (initialRemoveBtn) {
-        initialRemoveBtn.addEventListener('click', function() {
-            if (invoiceItems.children.length > 1) {
-                this.closest('.item-row').remove();
-                calculateTotals();
-            } else {
-                showAlert('danger', 'You must have at least one item on the invoice.');
-            }
-        });
-    }
-    
-    // Calculate invoice totals
-    function calculateTotals() {
-        let subtotal = 0;
-        
-        document.querySelectorAll('.item-row').forEach(row => {
-            const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
-            const price = parseFloat(row.querySelector('.price').value) || 0;
-            subtotal += quantity * price;
-        });
-        
-        const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
-        const taxAmount = subtotal * (taxRate / 100);
-        const totalAmount = subtotal + taxAmount;
-        
-        document.getElementById('subtotal').textContent = formatCurrency(subtotal);
-        document.getElementById('taxAmount').textContent = formatCurrency(taxAmount);
-        document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
-    }
-    
-    // Format currency
-  function formatCurrency(amount) {
-    const number = Number(amount || 0); // Converts string/undefined/null safely
-    return '₵' + number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-}
-    
-    // Tax rate change handler
-    document.getElementById('taxRate').addEventListener('input', calculateTotals);
-    
-    // Quantity/price change handlers for initial row
-    const initialQuantity = document.querySelector('.quantity');
-    const initialPrice = document.querySelector('.price');
-    if (initialQuantity) initialQuantity.addEventListener('input', calculateTotals);
-    if (initialPrice) initialPrice.addEventListener('input', calculateTotals);
-    
-    // Save invoice
-    saveInvoiceBtn.addEventListener('click', async function() {
-        // Validate form
-        if (!invoiceForm.checkValidity()) {
-            invoiceForm.classList.add('was-validated');
             return;
         }
         
-        // Disable button during submission
-        saveInvoiceBtn.disabled = true;
-        saveInvoiceBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        // Setup event listeners
+        setupEventListeners();
         
-        // Gather invoice data
-        const invoiceData = {
-            invoice_number: document.getElementById('invoiceNumber').value,
-            client_name: document.getElementById('clientName').value,
-            client_email: document.getElementById('clientEmail').value,
-            date: document.getElementById('invoiceDate').value,
-            due_date: document.getElementById('dueDate').value,
-            notes: document.getElementById('notes').value,
-            items: [],
-            subtotal: parseFloat(document.getElementById('subtotal').textContent.replace(/[^0-9.-]+/g, "")),
-            tax: parseFloat(document.getElementById('taxAmount').textContent.replace(/[^0-9.-]+/g, "")),
-            total_amount: parseFloat(document.getElementById('totalAmount').textContent.replace(/[^0-9.-]+/g, ""))
-        };
+        // Set default dates
+        setDefaultDates();
         
-        // Gather items
-        document.querySelectorAll('.item-row').forEach(row => {
-            const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
-            const price = parseFloat(row.querySelector('.price').value) || 0;
-            const total = quantity * price;
-            
-            invoiceData.items.push({
-                description: row.querySelector('input[type="text"]').value,
-                quantity: quantity,
-                price: price,
-                amount: total
+        // Generate invoice number on focus if empty
+        setupInvoiceNumberGeneration();
+        
+        // Load invoices
+        loadInvoiceData();
+    }
+    
+    function setupEventListeners() {
+        // Sidebar toggle for mobile
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.add('show');
             });
-        });
+        }
         
+        if (closeSidebar) {
+            closeSidebar.addEventListener('click', () => {
+                sidebar.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        if (logoutButton) {
+            logoutButton.addEventListener('click', logoutUser);
+        }
+        
+        // Add invoice item
+        if (addItemBtn) {
+            addItemBtn.addEventListener('click', addInvoiceItem);
+        }
+        
+        // Save invoice
+        if (saveInvoiceBtn) {
+            saveInvoiceBtn.addEventListener('click', saveInvoice);
+        }
+        
+        // Print invoice
+        if (printInvoiceBtn) {
+            printInvoiceBtn.addEventListener('click', printInvoice);
+        }
+        
+        // Calculate totals when values change
+        if (invoiceItems) {
+            invoiceItems.addEventListener('input', function(e) {
+                if (e.target.classList.contains('quantity') || e.target.classList.contains('price')) {
+                    calculateTotals();
+                }
+            });
+        }
+        
+        // Tax rate change
+        const taxRateInput = document.getElementById('taxRate');
+        if (taxRateInput) {
+            taxRateInput.addEventListener('input', calculateTotals);
+        }
+        
+        // Remove item
+        if (invoiceItems) {
+            invoiceItems.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
+                    e.preventDefault();
+                    const itemRow = e.target.closest('.item-row');
+                    if (invoiceItems.children.length > 1) {
+                        itemRow.remove();
+                        calculateTotals();
+                    } else {
+                        showAlert('danger', 'You must have at least one item on the invoice.');
+                    }
+                }
+            });
+        }
+        
+        // View invoice (delegated event for dynamic content)
+        if (invoiceList) {
+            invoiceList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('view-invoice') || e.target.closest('.view-invoice')) {
+                    e.preventDefault();
+                    const row = e.target.closest('tr');
+                    const invoiceId = row.dataset.id;
+                    viewInvoice(invoiceId);
+                }
+                
+                if (e.target.classList.contains('send-invoice') || e.target.closest('.send-invoice')) {
+                    e.preventDefault();
+                    const row = e.target.closest('tr');
+                    const invoiceId = row.dataset.id;
+                    const clientEmail = row.dataset.email;
+                    sendInvoice(invoiceId, clientEmail);
+                }
+            });
+        }
+        
+        // Pagination
+        if (pagination) {
+            pagination.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageItem = e.target.closest('.page-item');
+                if (!pageItem || pageItem.classList.contains('disabled') || pageItem.classList.contains('active')) return;
+                
+                const pageText = e.target.textContent.trim();
+                if (pageText === 'Previous') {
+                    currentPage--;
+                } else if (pageText === 'Next') {
+                    currentPage++;
+                } else {
+                    currentPage = parseInt(pageText);
+                }
+                
+                loadInvoiceData();
+            });
+        }
+    }
+    
+    function setDefaultDates() {
+        // Current date for default values
+        const today = new Date().toISOString().split('T')[0];
+        const invoiceDate = document.getElementById('invoiceDate');
+        if (invoiceDate) invoiceDate.value = today;
+        
+        // Set due date to 30 days from now by default
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 30);
+        const dueDateInput = document.getElementById('dueDate');
+        if (dueDateInput) dueDateInput.value = dueDate.toISOString().split('T')[0];
+    }
+    
+    function setupInvoiceNumberGeneration() {
+        const invoiceNumberInput = document.getElementById('invoiceNumber');
+        if (invoiceNumberInput) {
+            invoiceNumberInput.addEventListener('focus', function() {
+                if (!this.value) {
+                    this.value = 'INV-' + Math.floor(1000 + Math.random() * 9000);
+                }
+            });
+        }
+    }
+    
+    // API Functions
+    async function loadInvoiceData() {
         try {
-            // Send to server
-            const response = await fetch('https://smart-invoice-backend-ukob.onrender.com/api/invoices', {
+            // Show loading spinner
+            if (invoiceList) {
+                invoiceList.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/invoices`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+
+            if (response.status === 401) {
+                alert("Session expired. Please log in again.");
+                localStorage.removeItem('authToken');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+
+            invoices = await response.json();
+            
+            if (invoiceList) {
+                renderInvoices();
+                updatePagination();
+            }
+        } catch (error) {
+            console.error("Error loading invoices:", error);
+            showAlert('danger', 'Failed to load invoices. Please try again.');
+        }
+    }
+    
+    async function getInvoice(id) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/invoices/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch invoice');
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching invoice:', error);
+            showAlert('danger', 'Failed to load invoice details. Please try again.');
+            return null;
+        }
+    }
+    
+    async function createInvoice(invoiceData) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/invoices`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Authorization': `Bearer ${token}`,
                     'ngrok-skip-browser-warning': 'true'
                 },
                 body: JSON.stringify(invoiceData)
             });
             
-            const data = await response.json();
+            if (!response.ok) {
+                throw new Error('Failed to create invoice');
+            }
             
-            if (response.ok) {
-                // Success - show feedback
-                showAlert('success', 'Invoice created successfully!');
-                
-                // Close modal
-                bootstrap.Modal.getInstance(document.getElementById('createInvoiceModal')).hide();
-                
-                // Reset form
-                invoiceForm.reset();
-                invoiceForm.classList.remove('was-validated');
-                
-                // Reset items to one row
-                while (invoiceItems.children.length > 1) {
-                    invoiceItems.lastChild.remove();
-                }
-                document.querySelector('.quantity').value = 1;
-                document.querySelector('.price').value = '';
-                document.querySelector('input[type="text"]').value = '';
-                calculateTotals();
-                
-                // Reload invoices
-                loadInvoiceData();
-            } else {
-                showAlert('danger', 'Error saving invoice: ' + (data.message || 'Unknown error'));
-            }
+            return await response.json();
         } catch (error) {
-            console.error('Error:', error);
-            showAlert('danger', 'Failed to save invoice. Please try again.');
-        } finally {
-            // Re-enable button
-            saveInvoiceBtn.disabled = false;
-            saveInvoiceBtn.textContent = 'Save Invoice';
+            console.error('Error creating invoice:', error);
+            showAlert('danger', 'Failed to create invoice. Please try again.');
+            return null;
         }
-    });
+    }
     
-    // Load invoice data
-   async function loadInvoiceData() {
-    try {
-        // Show loading spinner
-        invoiceList.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </td>
-            </tr>
-        `;
-
-        const response = await fetch('https://smart-invoice-backend-ukob.onrender.com/api/invoices', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                'ngrok-skip-browser-warning': 'true'
-            }
-        });
-
-        if (response.status === 401) {
-            alert("Session expired. Please log in again.");
-            localStorage.removeItem('authToken');  // Clean up old token
-            window.location.href = 'login.html';   // Redirect to login
+    async function sendInvoice(id, email) {
+        if (!confirm(`Are you sure you want to send this invoice to ${email}?`)) {
             return;
         }
-
-        if (!response.ok) {
-            throw new Error(`Server returned ${response.status}`);
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/invoices/${id}/send`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to send invoice');
+            }
+            
+            showAlert('success', 'Invoice sent successfully!');
+            loadInvoiceData();
+        } catch (error) {
+            console.error('Error sending invoice:', error);
+            showAlert('danger', 'Failed to send invoice. Please try again.');
         }
-
-        const data = await response.json();
-        console.log("Parsed invoices:", data);
-
-        if (data.length === 0) {
+    }
+    
+    // UI Functions
+    function renderInvoices() {
+        const startIdx = (currentPage - 1) * invoicesPerPage;
+        const endIdx = startIdx + invoicesPerPage;
+        const displayedInvoices = invoices.slice(startIdx, endIdx);
+        
+        invoiceList.innerHTML = '';
+        
+        if (displayedInvoices.length === 0) {
             invoiceList.innerHTML = `
                 <tr>
                     <td colspan="7" class="text-center py-4 text-muted">
-                        No invoices found. Create your first invoice to get started.
+                        No invoices found. Create your first invoice!
                     </td>
                 </tr>
             `;
             return;
         }
-
-        renderInvoices(data);
-
-    } catch (error) {
-        console.error("Error loading invoices:", error);
-        alert("Failed to load invoices. Please try again.");
-    }
-}
-
-
-    
-    // Render invoices
-    function renderInvoices(invoices) {
-        invoiceList.innerHTML = '';
         
-        invoices.forEach(invoice => {
+        displayedInvoices.forEach(invoice => {
             const status = getInvoiceStatus(invoice.date, invoice.due_date);
             const statusClass = {
                 'Paid': 'bg-success',
@@ -291,6 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }[status];
             
             const row = document.createElement('tr');
+            row.dataset.id = invoice.id;
+            row.dataset.email = invoice.client_email;
             row.innerHTML = `
                 <td>${invoice.invoice_number}</td>
                 <td>${invoice.client_name}</td>
@@ -299,89 +329,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${formatCurrency(invoice.total_amount)}</td>
                 <td><span class="badge ${statusClass}">${status}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary view-invoice" data-id="${invoice.id}">
+                    <button class="btn btn-sm btn-outline-primary view-invoice">
                         <i class="bi bi-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary edit-invoice" data-id="${invoice.id}">
+                    <button class="btn btn-sm btn-outline-secondary edit-invoice">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-success send-invoice" data-id="${invoice.id}" data-email="${invoice.client_email}">
+                    <button class="btn btn-sm btn-outline-success send-invoice">
                         <i class="bi bi-envelope"></i>
                     </button>
                 </td>
             `;
+            
             invoiceList.appendChild(row);
         });
         
-        // Add event listeners to view buttons
-        document.querySelectorAll('.view-invoice').forEach(btn => {
-            btn.addEventListener('click', function() {
-                viewInvoice(this.getAttribute('data-id'));
-            });
-        });
+        // Update showing info
+        document.getElementById('showingFrom').textContent = startIdx + 1;
+        document.getElementById('showingTo').textContent = Math.min(endIdx, invoices.length);
+        document.getElementById('totalInvoices').textContent = invoices.length;
+    }
+    
+    function updatePagination() {
+        const totalPages = Math.ceil(invoices.length / invoicesPerPage);
+        const paginationList = pagination.querySelector('ul');
         
-        // Add event listeners to send buttons
-        document.querySelectorAll('.send-invoice').forEach(btn => {
-            btn.addEventListener('click', function() {
-                sendInvoice(this.getAttribute('data-id'), this.getAttribute('data-email'));
-            });
-        });
-    }
-    
-    // View invoice details
-    async function viewInvoice(invoiceId) {
-        try {
-            const response = await fetch(`https://smart-invoice-backend-ukob.onrender.com/api/invoices/${invoiceId}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                    'ngrok-skip-browser-warning': 'true'
-                }
-            });
-            
-            const invoice = await response.json();
-            
-            if (response.ok) {
-                renderInvoiceDetails(invoice);
-                viewInvoiceModal.show();
-            } else {
-                showAlert('danger', 'Error loading invoice: ' + (invoice.message || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('danger', 'Failed to load invoice. Please try again.');
-        }
-    }
-    
-    // Send invoice
-    async function sendInvoice(invoiceId, clientEmail) {
-        if (!confirm(`Are you sure you want to send this invoice to ${clientEmail}?`)) {
-            return;
+        // Clear existing pagination
+        paginationList.innerHTML = '';
+        
+        // Previous button
+        const prevItem = document.createElement('li');
+        prevItem.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        prevItem.innerHTML = '<a class="page-link" href="#">Previous</a>';
+        paginationList.appendChild(prevItem);
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const pageItem = document.createElement('li');
+            pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            paginationList.appendChild(pageItem);
         }
         
-        try {
-            const response = await fetch(`https://smart-invoice-backend-ukob.onrender.com/api/invoices/${invoiceId}/send`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                    'ngrok-skip-browser-warning': 'true'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                showAlert('success', 'Invoice sent successfully!');
-            } else {
-                showAlert('danger', 'Error sending invoice: ' + (data.message || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('danger', 'Failed to send invoice. Please try again.');
-        }
+        // Next button
+        const nextItem = document.createElement('li');
+        nextItem.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextItem.innerHTML = '<a class="page-link" href="#">Next</a>';
+        paginationList.appendChild(nextItem);
     }
     
-   // Updated renderInvoiceDetails function to fix amount display
-    function renderInvoiceDetails(invoice) {
+    async function viewInvoice(id) {
+        const invoice = await getInvoice(id);
+        if (!invoice) return;
+        
+        const invoiceDetails = document.getElementById('invoiceDetails');
         const status = getInvoiceStatus(invoice.date, invoice.due_date);
         const statusClass = {
             'Paid': 'badge-paid',
@@ -401,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `).join('');
         }
         
-        document.getElementById('invoiceDetails').innerHTML = `
+        invoiceDetails.innerHTML = `
             <div class="container">
                 <div class="row mb-4">
                     <div class="col-md-6">
@@ -452,15 +453,155 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>` : ''}
             </div>
         `;
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(viewInvoiceModal);
+        modal.show();
     }
     
-    // Format date
+    function addInvoiceItem() {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'item-row row mb-3';
+        itemRow.innerHTML = `
+            <div class="col-md-6">
+                <input type="text" class="form-control" placeholder="Description" required>
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control quantity" placeholder="Qty" min="1" value="1" required>
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control price" placeholder="Price" min="0" step="0.01" required>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger btn-sm remove-item">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        invoiceItems.appendChild(itemRow);
+    }
+    
+    function calculateTotals() {
+        let subtotal = 0;
+        
+        // Calculate subtotal from items
+        const itemRows = invoiceItems.querySelectorAll('.item-row');
+        itemRows.forEach(row => {
+            const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+            const price = parseFloat(row.querySelector('.price').value) || 0;
+            subtotal += quantity * price;
+        });
+        
+        // Calculate tax
+        const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+        const taxAmount = subtotal * (taxRate / 100);
+        const total = subtotal + taxAmount;
+        
+        // Update UI
+        document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+        document.getElementById('taxAmount').textContent = formatCurrency(taxAmount);
+        document.getElementById('totalAmount').textContent = formatCurrency(total);
+    }
+    
+    async function saveInvoice() {
+        // Validate form
+        if (!invoiceForm.checkValidity()) {
+            invoiceForm.classList.add('was-validated');
+            return;
+        }
+        
+        // Disable button during submission
+        saveInvoiceBtn.disabled = true;
+        saveInvoiceBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        
+        // Collect form data
+        const itemRows = invoiceItems.querySelectorAll('.item-row');
+        const items = Array.from(itemRows).map(row => {
+            return {
+                description: row.querySelector('input[type="text"]').value,
+                quantity: parseFloat(row.querySelector('.quantity').value),
+                price: parseFloat(row.querySelector('.price').value)
+            };
+        });
+        
+        const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+        const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+        const taxAmount = subtotal * (taxRate / 100);
+        
+        const invoiceData = {
+            invoice_number: document.getElementById('invoiceNumber').value,
+            date: document.getElementById('invoiceDate').value,
+            due_date: document.getElementById('dueDate').value,
+            client_name: document.getElementById('clientName').value,
+            client_email: document.getElementById('clientEmail').value,
+            items: items,
+            subtotal: subtotal,
+            tax: taxAmount,
+            total_amount: subtotal + taxAmount,
+            notes: document.getElementById('notes').value
+        };
+        
+        // Create invoice
+        const newInvoice = await createInvoice(invoiceData);
+        if (newInvoice) {
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(createInvoiceModal);
+            modal.hide();
+            invoiceForm.reset();
+            invoiceForm.classList.remove('was-validated');
+            invoiceItems.innerHTML = '';
+            addInvoiceItem(); // Add one empty item
+            
+            // Reload invoices
+            loadInvoiceData();
+            
+            showAlert('success', 'Invoice created successfully!');
+        }
+        
+        // Re-enable button
+        saveInvoiceBtn.disabled = false;
+        saveInvoiceBtn.textContent = 'Save Invoice';
+    }
+    
+    function printInvoice() {
+        window.print();
+    }
+    
+    async function logoutUser() {
+        try {
+            // Optional: Send a request to invalidate the token on the server
+            await fetch(`${API_BASE_URL}/auth/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            // Clear local storage
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('businessName');
+            localStorage.removeItem('rememberBusiness');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+    }
+    
+    // Helper Functions
     function formatDate(dateString) {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     }
     
-    // Determine invoice status
+    function formatCurrency(amount) {
+        const number = Number(amount || 0);
+        return '₵' + number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+    
     function getInvoiceStatus(date, dueDate) {
         const today = new Date();
         const due = new Date(dueDate);
@@ -472,12 +613,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Print invoice
-    document.getElementById('printInvoice')?.addEventListener('click', function() {
-        window.print();
-    });
-    
-    // Show alert message
     function showAlert(type, message) {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
@@ -506,38 +641,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
     
-    // Logout function
-    async function logoutUser() {
-        try {
-            // Optional: Send a request to invalidate the token on the server
-            await fetch('https://smart-invoice-backend-ukob.onrender.com/api/auth/logout', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                    'ngrok-skip-browser-warning': 'true'
-                }
-            });
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            // Clear local storage
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('businessName');
-            localStorage.removeItem('rememberBusiness');
-            
-            // Redirect to login page
-            window.location.href = 'login.html';
-        }
+    // Initialize with one empty item
+    if (invoiceItems && invoiceItems.children.length === 0) {
+        addInvoiceItem();
     }
-    
-    // Logout button event listener
-    document.getElementById('logoutButton')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        logoutUser();
-    });
-    
-    // Initial load
-    loadInvoiceData();
-    console.log(localStorage.getItem('authToken'));
-
 });
