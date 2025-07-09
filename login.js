@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Redirect to dashboard after a short delay
                     setTimeout(() => {
-                        window.location.href = 'invoice.html';
+                        window.location.href = './invoice.html';
                     }, 1500); // Redirect after 1.5 seconds
 
                     // Clear form fields and validation classes on successful login

@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 setTimeout(() => {
-                        window.location.href = 'invoice.html'; // Redirect to dashboard page
+                        window.location.href = './invoice.html'; // Redirect to dashboard page
                     }, 1500); // Redirect after 1.5 seconds
 
                 if (response.ok) {
