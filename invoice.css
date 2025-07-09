@@ -1,0 +1,347 @@
+/* General body styling */
+body {
+    font-family: 'Inter', sans-serif; /* Using Inter font */
+    background: #f8f9fa; /* Light background for dashboard */
+    min-height: 100vh; /* Full viewport height */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Include padding in element's total width and height */
+    display: flex; /* Use flexbox for main layout */
+}
+
+/* Common container for both registration and login forms */
+/* These styles are kept for consistency if you link styles.css to those pages */
+.registration-container,
+.login-container {
+    width: 100%;
+    max-width: 500px; /* Max width for the form */
+    padding: 20px;
+    box-sizing: border-box;
+    margin: auto; /* Center the containers */
+}
+
+/* Common styling for both registration and login cards */
+.registration-card,
+.login-card {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    animation: fadeIn 0.8s ease-out; /* Fade-in animation */
+}
+
+/* Animation for fade-in effect */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Heading styling */
+.registration-card h2,
+.login-card h2 {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+/* Form label styling */
+.form-label {
+    font-weight: 600;
+    color: #555;
+}
+
+/* Input field styling */
+.form-control {
+    border-radius: 8px; /* Rounded input fields */
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #88b4e6; /* Highlight on focus */
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Bootstrap-like focus shadow */
+}
+
+/* Invalid feedback styling */
+.form-control:not(:placeholder-shown):invalid ~ .invalid-feedback {
+    display: block; /* Show feedback when invalid */
+}
+
+/* Password strength progress bar (specific to registration, but kept in general CSS) */
+.password-strength .progress {
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+.password-strength .progress-bar {
+    border-radius: 5px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* Link styling */
+.registration-card a,
+.login-card a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.registration-card a:hover,
+.login-card a:hover {
+    text-decoration: underline;
+}
+
+/* Modal styling */
+.modal-content {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-body {
+    padding: 30px !important;
+}
+
+.modal-body .bi-check-circle-fill {
+    color: #28a745 !important; /* Green checkmark */
+}
+
+.modal-body h3 {
+    color: #333;
+    font-weight: 700;
+}
+
+.modal-body .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    border-radius: 8px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.modal-body .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Error Modal Specific Styles */
+.modal-header.bg-danger {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.modal-header .btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Makes the close button white */
+}
+
+/* Invoice Page Specific Styles */
+.container-fluid {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping for sidebar and main content */
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Hide overflow for main layout */
+}
+
+/* Sidebar styles */
+#sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100; /* Behind the navbar */
+    padding: 48px 0 0; /* Height of navbar */
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    background-color: #343a40 !important; /* Dark background */
+    transition: transform 0.3s ease-in-out; /* Smooth transition for sidebar toggle */
+    transform: translateX(-100%); /* Hidden by default on mobile */
+}
+
+#sidebar.show {
+    transform: translateX(0%); /* Show on mobile */
+}
+
+@media (min-width: 768px) {
+    #sidebar {
+        position: sticky;
+        height: auto; /* Allow content to dictate height */
+        transform: translateX(0%); /* Always visible on desktop */
+    }
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #adb5bd; /* Light grey text */
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background-color: rgba(0, 123, 255, 0.7); /* Primary color with transparency */
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(0, 123, 255, 0.5);
+}
+
+.sidebar .nav-link .bi {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+/* Logout button specific styling */
+.logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dc3545; /* Red background */
+    color: #fff !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.logout-btn .logout-spinner {
+    margin-left: 10px;
+}
+
+/* Main content area */
+main {
+    padding-top: 20px;
+    flex-grow: 1; /* Allow main content to take remaining space */
+    overflow-y: auto; /* Enable scrolling for main content */
+    height: 100vh; /* Ensure it takes full height for scrolling */
+}
+
+/* Mobile Sidebar Toggle Button */
+.navbar-toggler {
+    top: 15px;
+    left: 15px;
+    z-index: 101; /* Above sidebar */
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.navbar-toggler .bi {
+    font-size: 1.5rem;
+}
+
+/* Sticky header for main content */
+main .sticky-top {
+    z-index: 99; /* Below sidebar, above table */
+    background-color: #fff; /* Ensure it has a background */
+    padding-bottom: 15px; /* Add padding to separate from table */
+}
+
+/* Table styling */
+.table {
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden; /* Ensures rounded corners apply to table content */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.table thead {
+    background-color: #343a40; /* Dark header */
+    color: #fff;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+    padding: 12px 15px;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+.table .badge {
+    padding: 0.5em 0.8em;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+
+/* Action buttons in table */
+.table .btn-sm {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 0.5rem;
+    margin-right: 5px;
+}
+
+/* Create Invoice Modal specific styles */
+#createInvoiceModal .modal-dialog {
+    max-width: 900px; /* Wider modal for invoice creation */
+}
+
+#invoiceItems .item-row {
+    align-items: center;
+}
+
+#invoiceItems .item-row .col-md-6,
+#invoiceItems .item-row .col-md-2 {
+    margin-bottom: 10px; /* Spacing between item inputs */
+}
+
+#invoiceItems .item-row .remove-item {
+    margin-top: 32px; /* Align trash icon with input fields */
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    body {
+        flex-direction: column; /* Stack sidebar and main content on small screens */
+    }
+
+    #sidebar {
+        width: 250px; /* Fixed width for mobile sidebar */
+        padding-top: 60px; /* Account for toggle button */
+    }
+
+    main {
+        margin-left: 0 !important; /* Reset margin for main content */
+        width: 100%; /* Take full width */
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .navbar-toggler {
+        display: block !important; /* Show toggle button on mobile */
+    }
+}

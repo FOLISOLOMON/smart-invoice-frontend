@@ -4,115 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice Management</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Add these to your <head> section -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="invoice.css">
 </head>
 <body>
     <div class="container-fluid">
-        <div class="row">
-            <button class="navbar-toggler d-md-none position-fixed" type="button" id="sidebarToggle" style="z-index: 1050; left: 10px; top: 10px;">
-                <i class="bi bi-list text-white" style="font-size: 1.5rem;"></i>
-            </button>
-            <!-- Sidebar -->
-           <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <!-- Add close button for mobile -->
-                    <div class="d-flex justify-content-between align-items-center px-3 pb-2 d-md-none">
-                        <span class="text-white">Menu</span>
-                        <button type="button" class="btn-close btn-close-white" id="closeSidebar"></button>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">
-                                <i class="bi bi-file-earmark-text me-2"></i> Invoices
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-people me-2"></i> Clients
-                            </a>
-                        </li>
-                        <li class="nav-item mt-auto">
-                            <a class="nav-link text-danger" href="#" id="logoutButton">
-                                <i class="bi bi-box-arrow-right me-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+        <!-- Mobile Sidebar Toggle -->
+        <button class="navbar-toggler d-md-none position-fixed" type="button" id="sidebarToggle">
+            <i class="bi bi-list text-white"></i>
+        </button>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Invoice Management</h1>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
-                        <i class="bi bi-plus-lg"></i> Create Invoice
-                    </button>
-                </div>
-
-                <!-- Invoice List -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Invoice #</th>
-                                <th>Client</th>
-                                <th>Date</th>
-                                <th>Due Date</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="invoiceList">
-                            <!-- Example row (will be populated dynamically) -->
-                            <tr>
-                                <td>INV-1001</td>
-                                <td>Acme Corp</td>
-                                <td>2023-05-15</td>
-                                <td>2023-06-15</td>
-                                <td>$1,250.00</td>
-                                <td><span class="badge bg-success">Paid</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary view-invoice">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-secondary edit-invoice">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success send-invoice">
-                                        <i class="bi bi-envelope"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- More rows will be added here by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-
-                   <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted">
-                        Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalInvoices">25</span> invoices
-                    </div>
-                    <nav aria-label="Invoice pagination">
-                        <ul class="pagination">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </main>
+        <!-- Sidebar -->
+        <!-- Sidebar -->
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+    <div class="position-sticky pt-3 h-100 d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-center px-3 pb-2 d-md-none">
+            <span class="text-white">Menu</span>
+            <button type="button" class="btn-close btn-close-white" id="closeSidebar"></button>
         </div>
+        <ul class="nav flex-column flex-grow-1">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                    <i class="bi bi-file-earmark-text me-2"></i> Invoices
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="clients.html">
+                    <i class="bi bi-people me-2"></i> Clients
+                </a>
+            </li>
+        </ul>
+        <div class="mt-auto p-3">
+            <a class="nav-link text-danger logout-btn" href="#" id="logoutButton">
+                <i class="bi bi-box-arrow-right me-2"></i> 
+                <span class="logout-text">Logout</span>
+                <span class="logout-spinner spinner-border spinner-border-sm d-none" role="status"></span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom sticky-top bg-white">
+                <h1 class="h2">Invoice Management</h1>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
+                    <i class="bi bi-plus-lg me-1"></i> Create Invoice
+                </button>
+            </div>
+
+            <!-- Invoice Dashboard -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Due Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceList">
+                        <!-- Invoices will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                    Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalInvoices">0</span> invoices
+                </div>
+                <nav aria-label="Invoice pagination">
+                    <ul class="pagination" id="pagination">
+                        <!-- Pagination will be loaded here -->
+                    </ul>
+                </nav>
+            </div>
+        </main>
     </div>
 
     <!-- Create Invoice Modal -->
@@ -124,44 +100,49 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="invoiceForm">
+                    <form id="invoiceForm" novalidate>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="invoiceNumber" class="form-label">Invoice Number</label>
                                 <input type="text" class="form-control" id="invoiceNumber" required>
+                                <div class="invalid-feedback">Please provide an invoice number</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="invoiceDate" class="form-label">Date</label>
                                 <input type="date" class="form-control" id="invoiceDate" required>
+                                <div class="invalid-feedback">Please select a date</div>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="dueDate" class="form-label">Due Date</label>
                                 <input type="date" class="form-control" id="dueDate" required>
+                                <div class="invalid-feedback">Please select a due date</div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="clientName" class="form-label">Client Name</label>
                             <input type="text" class="form-control" id="clientName" required>
+                            <div class="invalid-feedback">Please provide client name</div>
                         </div>
                         <div class="mb-3">
                             <label for="clientEmail" class="form-label">Client Email</label>
                             <input type="email" class="form-control" id="clientEmail" required>
+                            <div class="invalid-feedback">Please provide valid email</div>
                         </div>
 
                         <h5 class="mt-4 mb-3">Items</h5>
                         <div id="invoiceItems">
                             <div class="item-row row mb-3">
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" placeholder="Description" required>
+                                    <input type="text" class="form-control item-description" placeholder="Description" required>
                                 </div>
                                 <div class="col-md-2">
                                     <input type="number" class="form-control quantity" placeholder="Qty" min="1" value="1" required>
                                 </div>
                                 <div class="col-md-2">
-                                    <input type="number" class="form-control price" placeholder="Price" min="0" step="0.01" required>
+                                    <input type="number" class="form-control unit-price" placeholder="Unit Price" min="0" step="0.01" required>
                                 </div>
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-danger btn-sm remove-item">
@@ -186,7 +167,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <span>Subtotal:</span>
-                                            <span id="subtotal">$0.00</span>
+                                            <span id="subtotal">GHS 0.00</span>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span>Tax (%):</span>
@@ -197,12 +178,12 @@
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span>Tax Amount:</span>
-                                            <span id="taxAmount">$0.00</span>
+                                            <span id="taxAmount">GHS 0.00</span>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between fw-bold">
                                             <span>Total:</span>
-                                            <span id="totalAmount">$0.00</span>
+                                            <span id="totalAmount">GHS 0.00</span>
                                         </div>
                                     </div>
                                 </div>
@@ -212,7 +193,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveInvoice">Save Invoice</button>
+                    <button type="button" class="btn btn-primary" id="saveInvoice">
+                        <span id="saveButtonText">Save Invoice</span>
+                        <span id="saveButtonSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -231,15 +215,31 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="printInvoice">
-                        <i class="bi bi-printer"></i> Print
+                    <button id="printInvoice" type="button" class="btn btn-primary">
+                        <i class="bi bi-printer me-1"></i> Print
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="mb-3">Invoice Created!</h3>
+                    <p>The invoice has been successfully created.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="invoices.js"></script>
+    <!-- <script src="invoice.js"></script> -->
+    <script src="inv.js"></script>
 </body>
 </html>

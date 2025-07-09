@@ -1,6 +1,6 @@
 /* General body styling */
 body {
-    font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
+    font-family: 'Inter', sans-serif; /* Using Inter font */
     background: linear-gradient(135deg, #71b7e6, #9b59b6); /* Gradient background */
     display: flex;
     justify-content: center;
@@ -11,16 +11,18 @@ body {
     box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
-/* Container for the registration card */
-.registration-container {
+/* Common container for both registration and login forms */
+.registration-container,
+.login-container {
     width: 100%;
     max-width: 500px; /* Max width for the form */
     padding: 20px;
     box-sizing: border-box;
 }
 
-/* Styling for the registration card */
-.registration-card {
+/* Common styling for both registration and login cards */
+.registration-card,
+.login-card {
     background-color: #fff;
     padding: 40px;
     border-radius: 15px; /* Rounded corners */
@@ -41,7 +43,8 @@ body {
 }
 
 /* Heading styling */
-.registration-card h2 {
+.registration-card h2,
+.login-card h2 {
     color: #333;
     font-weight: 700;
     margin-bottom: 25px;
@@ -71,7 +74,7 @@ body {
     display: block; /* Show feedback when invalid */
 }
 
-/* Password strength progress bar */
+/* Password strength progress bar (specific to registration, but kept in general CSS) */
 .password-strength .progress {
     background-color: #e9ecef;
     border-radius: 5px;
@@ -100,13 +103,15 @@ body {
 }
 
 /* Link styling */
-.registration-card a {
+.registration-card a,
+.login-card a {
     color: #007bff;
     text-decoration: none;
     font-weight: 600;
 }
 
-.registration-card a:hover {
+.registration-card a:hover,
+.login-card a:hover {
     text-decoration: underline;
 }
 
@@ -143,13 +148,25 @@ body {
     border-color: #1e7e34;
 }
 
+/* Error Modal Specific Styles */
+.modal-header.bg-danger {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.modal-header .btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Makes the close button white */
+}
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
-    .registration-card {
+    .registration-card,
+    .login-card {
         padding: 25px;
     }
 
-    .registration-card h2 {
+    .registration-card h2,
+    .login-card h2 {
         font-size: 1.8rem;
     }
 
