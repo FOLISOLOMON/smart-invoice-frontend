@@ -100,17 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 
 
-
+                localStorage.setItem('authToken', result.token);
                 if (response.ok) {
                     const result = await response.json();
                     console.log('Login successful:', result);
                     successModal.show(); // Show success modal
 
-                    localStorage.setItem('authToken', result.token);
 
                     // Redirect to dashboard after a short delay
                     setTimeout(() => {
-                        window.location.href = './invoice.html';
+                        window.location.href = './invoices.html';
                     }, 1500); // Redirect after 1.5 seconds
 
                     // Clear form fields and validation classes on successful login
