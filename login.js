@@ -100,12 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 
 
-                localStorage.setItem('authToken', result.token);
+
                 if (response.ok) {
                     const result = await response.json();
                     console.log('Login successful:', result);
                     successModal.show(); // Show success modal
 
+                    localStorage.setItem('authToken', result.token);
 
                     // Redirect to dashboard after a short delay
                     setTimeout(() => {
